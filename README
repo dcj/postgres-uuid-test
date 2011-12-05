@@ -1,0 +1,51 @@
+
+The project demonstrates that I cannot write a UUID to Postgres via ClojureQL, but that I can write a UUID to Postgres via java.jdbc, and that I can read a table containing UUIDs with ClojureQL, and they are returned as UUIDs.
+
+(use 'postgres-uuid-test.core)
+WARNING: distinct already refers to: #'clojure.core/distinct in namespace: postgres-uuid-test.core, being replaced by: #'clojureql.core/distinct
+WARNING: conj! already refers to: #'clojure.core/conj! in namespace: postgres-uuid-test.core, being replaced by: #'clojureql.core/conj!
+WARNING: case already refers to: #'clojure.core/case in namespace: postgres-uuid-test.core, being replaced by: #'clojureql.core/case
+WARNING: compile already refers to: #'clojure.core/compile in namespace: postgres-uuid-test.core, being replaced by: #'clojureql.core/compile
+WARNING: drop already refers to: #'clojure.core/drop in namespace: postgres-uuid-test.core, being replaced by: #'clojureql.core/drop
+WARNING: take already refers to: #'clojure.core/take in namespace: postgres-uuid-test.core, being replaced by: #'clojureql.core/take
+WARNING: sort already refers to: #'clojure.core/sort in namespace: postgres-uuid-test.core, being replaced by: #'clojureql.core/sort
+WARNING: disj! already refers to: #'clojure.core/disj! in namespace: postgres-uuid-test.core, being replaced by: #'clojureql.core/disj!
+nil
+user> (ns postgres-uuid-test.core)
+; Evaluation aborted.
+postgres-uuid-test.core> u1
+#<UUID 2896de2b-2c48-40ab-83a6-cee6c2be16cd>
+postgres-uuid-test.core> u2
+#<UUID d812274a-a1ff-4ce5-962e-005f3c893459>
+postgres-uuid-test.core> (read-table-clojureql)
+()
+postgres-uuid-test.core> (write-uuid-jdbc u1 "jdbc")
+{:uid #<UUID 2896de2b-2c48-40ab-83a6-cee6c2be16cd>, :name "jdbc"}
+postgres-uuid-test.core> (write-uuid-clojureql u2 "clojureql")
+
+Here is the stack trace:
+
+Bad value for type int : d812274a-a1ff-4ce5-962e-005f3c893459
+  [Thrown class org.postgresql.util.PSQLException]
+
+Restarts:
+ 0: [QUIT] Quit to the SLIME top level
+
+Backtrace:
+  0: org.postgresql.jdbc2.AbstractJdbc2ResultSet.toInt(AbstractJdbc2ResultSet.java:2759)
+  1: org.postgresql.jdbc2.AbstractJdbc2ResultSet.getInt(AbstractJdbc2ResultSet.java:2003)
+  2: sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+  3: sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+  4: sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+  5: java.lang.reflect.Method.invoke(Method.java:597)
+  6: clojure.lang.Reflector.invokeMatchingMethod(Reflector.java:90)
+  7: clojure.lang.Reflector.invokeInstanceMethod(Reflector.java:28)
+  8: clojureql.internal$generated_keys.invoke(internal.clj:382)
+  9: clojureql.internal$exec_prepared$fn__1956.invoke(internal.clj:395)
+ --more--
+
+; Evaluation aborted.
+postgres-uuid-test.core> (write-uuid-jdbc u2 "jdbc")
+{:uid #<UUID d812274a-a1ff-4ce5-962e-005f3c893459>, :name "jdbc"}
+postgres-uuid-test.core> (read-table-clojureql)
+({:name "jdbc", :uid #<UUID 2896de2b-2c48-40ab-83a6-cee6c2be16cd>} {:name "jdbc", :uid #<UUID d812274a-a1ff-4ce5-962e-005f3c893459>})
